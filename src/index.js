@@ -102,6 +102,20 @@ const init = async () => {
       console.log(table);
     }
 
+    if (option === "addDepartment") {
+      const addDepartmentQuestion = [
+        {
+          type: "input",
+          message: "Enter the name of the department:",
+          name: "name",
+        },
+      ];
+
+      const answers = await inquirer.prompt(addDepartmentQuestion);
+
+      await db.insert("department", answers);
+    }
+
     if (option === "EXIT") {
       inProgress = false;
       db.end("Thank you for using our app");
