@@ -46,6 +46,22 @@ class Db {
       this.connection.query(`SELECT * FROM ${tableName}`, handleQuery);
     });
   }
+
+  insert(tableName, data) {
+    return new Promise((resolve, reject) => {
+      const handleQuery = (err, rows) => {
+        if (err) reject(err);
+        console.log("Successfully inserted data");
+        resolve(rows);
+      };
+
+      this.connection.query(
+        `INSERT INTO ${tableName} SET ?`,
+        data,
+        handleQuery
+      );
+    });
+  }
 }
 
 module.exports = Db;
