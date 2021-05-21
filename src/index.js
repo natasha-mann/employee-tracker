@@ -90,6 +90,42 @@ const init = async () => {
 
     const { option } = await inquirer.prompt(optionsQuestion);
 
+    if (option === "addRole") {
+      const allDepartments = await db.selectAll("department");
+
+      const generateChoices = (departments) => {
+        return departments.map((department) => {
+          return {
+            name: department.name,
+            value: department.id,
+          };
+        });
+      };
+
+      const addRoleQuestions = [
+        {
+          type: "input",
+          message: "Enter the name of the role:",
+          name: "title",
+        },
+        {
+          type: "number",
+          message: "Enter the salary of the role:",
+          name: "salary",
+        },
+        {
+          type: "list",
+          message: "Which department is this role in?:",
+          name: "department_id",
+          choices: generateChoices(allDepartments),
+        },
+      ];
+
+      const answers = await inquirer.prompt(addRoleQuestions);
+
+      await db.insert("role", answers);
+    }
+
     if (option === "allDepartments") {
       const allDepartments = await db.selectAll("department");
       const departmentNames = allDepartments.map((each) => {
