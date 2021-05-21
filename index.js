@@ -1,3 +1,5 @@
+const inquirer = require("inquirer");
+
 const Db = require("./db/database");
 
 const init = async () => {
