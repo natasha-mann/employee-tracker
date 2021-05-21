@@ -90,6 +90,72 @@ const init = async () => {
 
     const { option } = await inquirer.prompt(optionsQuestion);
 
+    if (option === "addEmployee") {
+      const allRoles = await db.selectAll("role");
+      const allEmployees = await db.selectAll("employee");
+
+      const generateRoleChoices = (roles) => {
+        return roles.map((role) => {
+          return {
+            name: role.title,
+            value: role.id,
+          };
+        });
+      };
+
+      const generateManagerChoices = (employees) => {
+        return employees.map((employee) => {
+          return {
+            name: `${employee.first_name} ${employee.last_name}`,
+            value: employee.id,
+          };
+        });
+      };
+
+      const addEmployeeQuestions = [
+        {
+          type: "input",
+          message: "Enter the first name of the employee:",
+          name: "first_name",
+        },
+        {
+          type: "input",
+          message: "Enter the last name of the employee:",
+          name: "last_name",
+        },
+        {
+          type: "list",
+          message: "Select the employee's role:",
+          name: "role_id",
+          choices: generateRoleChoices(allRoles),
+        },
+        {
+          type: "confirm",
+          message: "Does the employee have a manager?",
+          name: "hasManager",
+        },
+        {
+          type: "list",
+          message: "Select the employee's manager:",
+          name: "manager_id",
+          when: (answers) => {
+            return answers.hasManager;
+          },
+          choices: generateManagerChoices(allEmployees),
+        },
+      ];
+
+      const { first_name, last_name, role_id, manager_id } =
+        await inquirer.prompt(addEmployeeQuestions);
+
+      await db.insert("employee", {
+        first_name,
+        last_name,
+        role_id,
+        manager_id,
+      });
+    }
+
     if (option === "allRoles") {
       const allRoles = await db.selectAll("role");
       const rolesData = allRoles.map((each) => {
