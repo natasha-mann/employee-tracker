@@ -90,6 +90,19 @@ const init = async () => {
 
     const { option } = await inquirer.prompt(optionsQuestion);
 
+    if (option === "allRoles") {
+      const allRoles = await db.selectAll("role");
+      const rolesData = allRoles.map((each) => {
+        return {
+          title: each.title,
+          salary: each.salary,
+        };
+      });
+
+      const table = cTable.getTable(rolesData);
+      console.log(table);
+    }
+
     if (option === "addRole") {
       const allDepartments = await db.selectAll("department");
 
