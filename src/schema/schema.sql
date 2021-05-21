@@ -2,13 +2,9 @@ DROP DATABASE IF EXISTS workplace_db;
 CREATE DATABASE workplace_db;
 
 USE workplace_db;
-
-CREATE TABLE employee (
+CREATE TABLE department (
   id INT NOT NULL AUTO_INCREMENT,
-  first_name VARCHAR(30) NOT NULL,
-  last_name VARCHAR(50) NOT NULL,
-  role_id INT NOT NULL,
-  manager_id INT,
+  name VARCHAR(30) NOT NULL,
   PRIMARY KEY (id)
 );
 
@@ -17,11 +13,35 @@ CREATE TABLE role (
   title VARCHAR(30) NOT NULL,
   salary DECIMAL NOT NULL,
   department_id INT NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  CONSTRAINT fk_department
+    FOREIGN KEY (department_id) 
+    REFERENCES department(id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
 );
 
-CREATE TABLE department (
+CREATE TABLE employee (
   id INT NOT NULL AUTO_INCREMENT,
-  name VARCHAR(30) NOT NULL,
-  PRIMARY KEY (id)
+  first_name VARCHAR(30) NOT NULL,
+  last_name VARCHAR(50) NOT NULL,
+  role_id INT NOT NULL,
+  manager_id INT,
+  PRIMARY KEY (id),
+   CONSTRAINT fk_role
+    FOREIGN KEY (role_id) 
+    REFERENCES role(id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+        CONSTRAINT fk_manager
+    FOREIGN KEY (manager_id) 
+    REFERENCES employee(id)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL
 );
+
+
+SELECT first_name, last_name, title, salary, name, manager_id
+FROM employee
+LEFT JOIN role ON employee.role_id = role.id
+LEFT JOIN department ON role.department_id = department.id;
