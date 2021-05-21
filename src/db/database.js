@@ -35,6 +35,17 @@ class Db {
         `Connection to ${this.database} database has been successfully closed.`
     );
   }
+
+  selectAll(tableName) {
+    return new Promise((resolve, reject) => {
+      const handleQuery = (err, rows) => {
+        if (err) reject(err);
+        resolve(rows);
+      };
+
+      this.connection.query(`SELECT * FROM ${tableName}`, handleQuery);
+    });
+  }
 }
 
 module.exports = Db;
