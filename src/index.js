@@ -103,9 +103,45 @@ const init = async () => {
       console.log(table);
     }
 
+    if (option === "viewAllByDepartment") {
+      const allDepartments = await db.query(`SELECT * FROM department`);
+
+      const generateChoices = (departments) => {
+        return departments.map((department) => {
+          return {
+            name: department.name,
+            value: department.id,
+          };
+        });
+      };
+
+      const whichDepartmentQuestion = {
+        type: "list",
+        message: "Which department's employees would you like to see?",
+        name: "department_id",
+        choices: generateChoices(allDepartments),
+      };
+
+      const chosenDepartment = await inquirer.prompt(whichDepartmentQuestion);
+      const rolesFromDept = await db.queryParams(`SELECT ?? FROM ?? WHERE ?`, [
+        "id",
+        "role",
+        chosenDepartment,
+      ]);
+
+      // const employeeByDepartment = await db.query(
+      //   `SELECT * FROM ?? WHERE ?`,
+      //   ["employee", "role_id", rolesFromDept.id],
+      //   true
+      // );
+
+      // const table = cTable.getTable(employeeData);
+      // console.log(table);
+    }
+
     if (option === "addEmployee") {
-      const allRoles = await db.query(selectAll("role"));
-      const allEmployees = await db.query(selectAll("employee"));
+      const allRoles = await db.query(`SELECT * FROM role`);
+      const allEmployees = await db.query(`SELECT * FROM employee`);
 
       const generateRoleChoices = (roles) => {
         return roles.map((role) => {
@@ -191,7 +227,7 @@ const init = async () => {
     }
 
     if (option === "addRole") {
-      const allDepartments = await db.query(selectAll("department"));
+      const allDepartments = await db.query(`SELECT * FROM department`);
 
       const generateChoices = (departments) => {
         return departments.map((department) => {
