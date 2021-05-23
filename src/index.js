@@ -41,8 +41,8 @@ const init = async () => {
           name: "Add Employee",
         },
         {
-          value: "deleteEmployee",
-          name: "Delete Employee",
+          value: "removeEmployee",
+          name: "Remove an Employee",
         },
         {
           short: "Employee Role",
@@ -222,6 +222,25 @@ const init = async () => {
           role_id,
           manager_id,
         },
+      ]);
+    }
+
+    if (option === "removeEmployee") {
+      const allEmployees = await db.query(`SELECT * FROM employee`);
+
+      const whichEmployee = {
+        type: "list",
+        message: "Which role would you like to remove?",
+        name: "id",
+        choices: generateEmployeeChoices(allEmployees),
+      };
+
+      const chosenEmployee = await inquirer.prompt(whichEmployee);
+
+      db.queryParams(`DELETE FROM ?? WHERE ?? = ?`, [
+        "employee",
+        "id",
+        chosenEmployee.id,
       ]);
     }
 
