@@ -256,6 +256,58 @@ const init = async () => {
       ]);
     }
 
+    if (option === "updateManager") {
+      const allEmployees = await db.query(`SELECT * FROM employee`);
+
+      const generateEmployeeChoices = (employees) => {
+        return employees.map((employee) => {
+          return {
+            name: `${employee.first_name} ${employee.last_name}`,
+            value: employee.id,
+          };
+        });
+      };
+
+      const whichEmployee = {
+        type: "list",
+        message: "Which employee would you like to update?",
+        name: "id",
+        choices: generateEmployeeChoices(allEmployees),
+      };
+
+      const chosenEmployee = await inquirer.prompt(whichEmployee);
+
+      const newEmployeeArray = allEmployees.filter(
+        (employee) => employee.id !== chosenEmployee.id
+      );
+
+      const generateManagerChoices = (employees) => {
+        return employees.map((employee) => {
+          return {
+            name: `${employee.first_name} ${employee.last_name}`,
+            value: employee.id,
+          };
+        });
+      };
+
+      const newManager = {
+        type: "list",
+        message: `Who is ${chosenEmployee.first_name} ${chosenEmployee.last_name}'s manager?`,
+        name: "id",
+        choices: generateManagerChoices(newEmployeeArray),
+      };
+
+      const chosenManager = await inquirer.prompt(newManager);
+
+      await db.queryParams(`UPDATE ?? SET ?? = ? WHERE ?? = ?`, [
+        "employee",
+        "manager_id",
+        `${chosenManager.id}`,
+        "id",
+        `${chosenEmployee.id}`,
+      ]);
+    }
+
     if (option === "allRoles") {
       const rolesAndDepartments = await db.queryParams(leftJoin(), [
         "title",
@@ -270,7 +322,7 @@ const init = async () => {
         "department.id",
       ]);
 
-      const table = cTable.getTable(rolesAndDepartments);
+      const table = cTable.getTable(rolesAndDepartment);
       console.log(table);
     }
 
