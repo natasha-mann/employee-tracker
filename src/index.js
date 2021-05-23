@@ -208,6 +208,54 @@ const init = async () => {
       ]);
     }
 
+    if (option === "updateRole") {
+      const allEmployees = await db.query(`SELECT * FROM employee`);
+      const allRoles = await db.query(`SELECT * FROM role`);
+
+      const generateEmployeeChoices = (employees) => {
+        return employees.map((employee) => {
+          return {
+            name: `${employee.first_name} ${employee.last_name}`,
+            value: employee.id,
+          };
+        });
+      };
+
+      const generateRoleChoices = (roles) => {
+        return roles.map((role) => {
+          return {
+            name: role.title,
+            value: role.id,
+          };
+        });
+      };
+
+      const whichEmployee = {
+        type: "list",
+        message: "Which employee would you like to update?",
+        name: "id",
+        choices: generateEmployeeChoices(allEmployees),
+      };
+
+      const newRole = {
+        type: "list",
+        message: "What is the employee's role?",
+        name: "id",
+        choices: generateRoleChoices(allRoles),
+      };
+
+      const chosenEmployee = await inquirer.prompt(whichEmployee);
+      const chosenRole = await inquirer.prompt(newRole);
+
+      await db.queryParams(`UPDATE ?? SET ?? = ? WHERE ?? = ?`, [
+        "employee",
+        "role_id",
+        `${chosenRole.id}`,
+        "id",
+        `${chosenEmployee.id}`,
+      ]);
+    }
+
     if (option === "allRoles") {
       const rolesAndDepartments = await db.queryParams(leftJoin(), [
         "title",
