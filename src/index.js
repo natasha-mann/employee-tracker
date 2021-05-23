@@ -6,6 +6,7 @@ const {
   leftJoin,
   generateEmployeeChoices,
   generateRoleChoices,
+  generateDepartmentChoices,
 } = require("./utils/utils");
 
 const init = async () => {
@@ -110,41 +111,24 @@ const init = async () => {
     if (option === "viewAllByDepartment") {
       const allDepartments = await db.query(`SELECT * FROM department`);
 
-      const generateChoices = (departments) => {
-        return departments.map((department) => {
-          return {
-            name: department.name,
-            value: department.id,
-          };
-        });
-      };
-
       const whichDepartmentQuestion = {
         type: "list",
         message: "Which department's employees would you like to see?",
-        name: "department_id",
-        choices: generateChoices(allDepartments),
+        name: "id",
+        choices: generateDepartmentChoices(allDepartments),
       };
 
       const chosenDepartment = await inquirer.prompt(whichDepartmentQuestion);
-      console.log(chosenDepartment);
 
-      const rolesFromDept = await db.queryParams(`SELECT ?? FROM ?? WHERE ?`, [
-        "id",
-        "role",
-        chosenDepartment,
-      ]);
+      const employeeByDepartment = await db.query(`
+      SELECT employee_role.first_name as "First Name", employee_role.last_name as "Last Name", title as "Role", name as "Department"
+      FROM employee employee_role
+      LEFT JOIN role ON employee_role.role_id = role.id
+      LEFT JOIN department ON role.department_id = department.id
+      WHERE role.department_id = ${chosenDepartment.id};`);
 
-      console.log(rolesFromDept);
-
-      // const employeeByDepartment = await db.query(
-      //   `SELECT * FROM ?? WHERE ?? = ?`,
-      //   ["employee", "role_id", rolesFromDept],
-      //   true
-      // );
-
-      // const table = cTable.getTable(employeeData);
-      // console.log(table);
+      const table = cTable.getTable(employeeByDepartment);
+      console.log(table);
     }
 
     if (option === "viewAllByManager") {
@@ -329,15 +313,6 @@ const init = async () => {
     if (option === "addRole") {
       const allDepartments = await db.query(`SELECT * FROM department`);
 
-      const generateDepartmentChoices = (departments) => {
-        return departments.map((department) => {
-          return {
-            name: department.name,
-            value: department.id,
-          };
-        });
-      };
-
       const addRoleQuestions = [
         {
           type: "input",
@@ -407,15 +382,6 @@ const init = async () => {
     if (option === "removeDepartment") {
       const allDepartments = await db.query(`SELECT * FROM department`);
 
-      const generateDepartmentChoices = (departments) => {
-        return departments.map((department) => {
-          return {
-            name: department.name,
-            value: department.id,
-          };
-        });
-      };
-
       const whichDepartment = {
         type: "list",
         message: "Which department would you like to remove?",
@@ -430,6 +396,29 @@ const init = async () => {
         "id",
         chosenDepartment.id,
       ]);
+    }
+
+    if (option === "departmentSpend") {
+      const allDepartments = await db.query(`SELECT * FROM department`);
+
+      const whichDepartment = {
+        type: "list",
+        message: "Which department's budget spend would you like to view?",
+        name: "id",
+        choices: generateDepartmentChoices(allDepartments),
+      };
+
+      const chosenDepartment = await inquirer.prompt(whichDepartment);
+
+      const totalSpend = await db.query(`
+      SELECT name as "Department", SUM(salary) "Total Budget Spend"
+        FROM employee
+        LEFT JOIN role ON role.id = employee.role_id
+        LEFT JOIN department ON role.department_id = department.id
+        WHERE role.department_id = ${chosenDepartment.id};`);
+
+      const table = cTable.getTable(totalSpend);
+      console.log(table);
     }
 
     if (option === "EXIT") {
