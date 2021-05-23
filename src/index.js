@@ -2,7 +2,7 @@ const inquirer = require("inquirer");
 const cTable = require("console.table");
 
 const Db = require("./db/database");
-const { selectAll } = require("./utils/utils");
+const { leftJoin } = require("./utils/utils");
 
 const init = async () => {
   const db = new Db("workplace_db");
@@ -92,15 +92,14 @@ const init = async () => {
     const { option } = await inquirer.prompt(optionsQuestion);
 
     if (option === "viewAllEmployees") {
-      const allEmployees = await db.query(selectAll("employee"));
-      const employeesData = allEmployees.map((employee) => {
-        return {
-          first_name: employee.first_name,
-          last_name: employee.last_name,
-        };
-      });
+      const employeeData =
+        await db.query(`SELECT employee_role.first_name as "First Name", employee_role.last_name as "Last Name", title as "Role", salary as "Salary", name as "Department", employee_manager.first_name as "Manager First Name", employee_manager.last_name as "Manager Last Name"
+      FROM employee employee_role
+      LEFT JOIN role ON employee_role.role_id = role.id
+      LEFT JOIN department ON role.department_id = department.id
+      LEFT JOIN employee employee_manager ON employee_role.manager_id = employee_manager.id`);
 
-      const table = cTable.getTable(employeesData);
+      const table = cTable.getTable(employeeData);
       console.log(table);
     }
 
@@ -174,15 +173,20 @@ const init = async () => {
     }
 
     if (option === "allRoles") {
-      const allRoles = await db.query(selectAll("role"));
-      const rolesData = allRoles.map((each) => {
-        return {
-          title: each.title,
-          salary: each.salary,
-        };
-      });
+      const rolesAndDepartments = await db.queryParams(leftJoin(), [
+        "title",
+        "Role",
+        "salary",
+        "Salary",
+        "name",
+        "Department",
+        "role",
+        "department",
+        "role.department_id",
+        "department.id",
+      ]);
 
-      const table = cTable.getTable(rolesData);
+      const table = cTable.getTable(rolesAndDepartments);
       console.log(table);
     }
 
@@ -223,14 +227,11 @@ const init = async () => {
     }
 
     if (option === "allDepartments") {
-      const allDepartments = await db.query(selectAll("department"));
-      const departmentNames = allDepartments.map((each) => {
-        return {
-          department: each.name,
-        };
-      });
+      const allDepartments = await db.query(
+        `SELECT name as "Department" FROM department`
+      );
 
-      const table = cTable.getTable(departmentNames);
+      const table = cTable.getTable(allDepartments);
       console.log(table);
     }
 

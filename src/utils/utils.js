@@ -1,5 +1,9 @@
-const selectAll = (table) => {
-  return `SELECT * FROM ${table}`;
+const leftJoin = () => {
+  return `
+SELECT ?? as ?, ?? as ?, ?? as ?
+FROM ?? 
+LEFT JOIN ?? ON ?? = ??
+`;
 };
 
-module.exports = { selectAll };
+module.exports = { leftJoin };
