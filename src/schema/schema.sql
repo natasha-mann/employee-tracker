@@ -63,5 +63,5 @@ LEFT JOIN role ON role.department_id = department.id
 
 -- get all roles with department information
 SELECT title as "Role", salary as "Salary", name as "Department"
-FROM department 
-RIGHT JOIN role ON role.department_id = department.id
+FROM role
+LEFT JOIN department ON role.department_id = department.id

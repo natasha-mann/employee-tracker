@@ -24,4 +24,18 @@ const generateRoleChoices = (roles) => {
   });
 };
 
-module.exports = { leftJoin, generateEmployeeChoices, generateRoleChoices };
+const generateDepartmentChoices = (departments) => {
+  return departments.map((department) => {
+    return {
+      name: department.name,
+      value: department.id,
+    };
+  });
+};
+
+module.exports = {
+  leftJoin,
+  generateEmployeeChoices,
+  generateRoleChoices,
+  generateDepartmentChoices,
+};
