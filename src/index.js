@@ -2,6 +2,7 @@ const inquirer = require("inquirer");
 const cTable = require("console.table");
 
 const Db = require("./db/database");
+const { selectAll } = require("./utils/utils");
 
 const init = async () => {
   const db = new Db("workplace_db");
@@ -91,7 +92,7 @@ const init = async () => {
     const { option } = await inquirer.prompt(optionsQuestion);
 
     if (option === "viewAllEmployees") {
-      const allEmployees = await db.selectAll("employee");
+      const allEmployees = await db.query(selectAll("employee"));
       const employeesData = allEmployees.map((employee) => {
         return {
           first_name: employee.first_name,
@@ -104,8 +105,8 @@ const init = async () => {
     }
 
     if (option === "addEmployee") {
-      const allRoles = await db.selectAll("role");
-      const allEmployees = await db.selectAll("employee");
+      const allRoles = await db.query(selectAll("role"));
+      const allEmployees = await db.query(selectAll("employee"));
 
       const generateRoleChoices = (roles) => {
         return roles.map((role) => {
@@ -161,16 +162,19 @@ const init = async () => {
       const { first_name, last_name, role_id, manager_id } =
         await inquirer.prompt(addEmployeeQuestions);
 
-      await db.insert("employee", {
-        first_name,
-        last_name,
-        role_id,
-        manager_id,
-      });
+      await db.queryParams(`INSERT INTO ?? SET ?`, [
+        "employee",
+        {
+          first_name,
+          last_name,
+          role_id,
+          manager_id,
+        },
+      ]);
     }
 
     if (option === "allRoles") {
-      const allRoles = await db.selectAll("role");
+      const allRoles = await db.query(selectAll("role"));
       const rolesData = allRoles.map((each) => {
         return {
           title: each.title,
@@ -183,7 +187,7 @@ const init = async () => {
     }
 
     if (option === "addRole") {
-      const allDepartments = await db.selectAll("department");
+      const allDepartments = await db.query(selectAll("department"));
 
       const generateChoices = (departments) => {
         return departments.map((department) => {
@@ -215,11 +219,11 @@ const init = async () => {
 
       const answers = await inquirer.prompt(addRoleQuestions);
 
-      await db.insert("role", answers);
+      await db.queryParams(`INSERT INTO ?? SET ?`, ["role", answers]);
     }
 
     if (option === "allDepartments") {
-      const allDepartments = await db.selectAll("department");
+      const allDepartments = await db.query(selectAll("department"));
       const departmentNames = allDepartments.map((each) => {
         return {
           department: each.name,
@@ -241,7 +245,7 @@ const init = async () => {
 
       const answers = await inquirer.prompt(addDepartmentQuestion);
 
-      await db.insert("department", answers);
+      await db.queryParams(`INSERT INTO ?? SET ?`, ["department", answers]);
     }
 
     if (option === "EXIT") {
