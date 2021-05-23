@@ -2,7 +2,11 @@ const inquirer = require("inquirer");
 const cTable = require("console.table");
 
 const Db = require("./db/database");
-const { leftJoin } = require("./utils/utils");
+const {
+  leftJoin,
+  generateEmployeeChoices,
+  generateRoleChoices,
+} = require("./utils/utils");
 
 const init = async () => {
   const db = new Db("workplace_db");
@@ -93,7 +97,7 @@ const init = async () => {
 
     if (option === "viewAllEmployees") {
       const employeeData =
-        await db.query(`SELECT employee_role.first_name as "First Name", employee_role.last_name as "Last Name", title as "Role", salary as "Salary", name as "Department", employee_manager.first_name as "Manager First Name", employee_manager.last_name as "Manager Last Name"
+        await db.query(`SELECT employee_role.first_name as "First Name", employee_role.last_name as "Last Name", name as "Department", title as "Role", salary as "Salary",  CONCAT (employee_manager.first_name, " ", employee_manager.last_name) as "Manager Name"
       FROM employee employee_role
       LEFT JOIN role ON employee_role.role_id = role.id
       LEFT JOIN department ON role.department_id = department.id
@@ -123,15 +127,19 @@ const init = async () => {
       };
 
       const chosenDepartment = await inquirer.prompt(whichDepartmentQuestion);
+      console.log(chosenDepartment);
+
       const rolesFromDept = await db.queryParams(`SELECT ?? FROM ?? WHERE ?`, [
         "id",
         "role",
         chosenDepartment,
       ]);
 
+      console.log(rolesFromDept);
+
       // const employeeByDepartment = await db.query(
-      //   `SELECT * FROM ?? WHERE ?`,
-      //   ["employee", "role_id", rolesFromDept.id],
+      //   `SELECT * FROM ?? WHERE ?? = ?`,
+      //   ["employee", "role_id", rolesFromDept],
       //   true
       // );
 
@@ -139,27 +147,36 @@ const init = async () => {
       // console.log(table);
     }
 
+    if (option === "viewAllByManager") {
+      const allEmployees = await db.query(`SELECT * FROM employee`);
+
+      const whichManagerQuestion = {
+        type: "list",
+        message: "Which manager's employees would you like to see?",
+        name: "id",
+        choices: generateEmployeeChoices(allEmployees),
+      };
+
+      const chosenManager = await inquirer.prompt(whichManagerQuestion);
+
+      const employeesByManager =
+        await db.query(`SELECT employee_role.first_name as "First Name", employee_role.last_name as "Last Name", title as "Role", CONCAT (employee_manager.first_name, " ", employee_manager.last_name) as "Manager Name"
+      FROM employee employee_role
+      LEFT JOIN role ON employee_role.role_id = role.id
+      LEFT JOIN employee employee_manager ON employee_role.manager_id = employee_manager.id
+      WHERE employee_role.manager_id = ${chosenManager.id}`);
+
+      if (employeesByManager.length) {
+        const table = cTable.getTable(employeesByManager);
+        console.log(table);
+      } else {
+        console.log("This employee is not a manager.");
+      }
+    }
+
     if (option === "addEmployee") {
       const allRoles = await db.query(`SELECT * FROM role`);
       const allEmployees = await db.query(`SELECT * FROM employee`);
-
-      const generateRoleChoices = (roles) => {
-        return roles.map((role) => {
-          return {
-            name: role.title,
-            value: role.id,
-          };
-        });
-      };
-
-      const generateManagerChoices = (employees) => {
-        return employees.map((employee) => {
-          return {
-            name: `${employee.first_name} ${employee.last_name}`,
-            value: employee.id,
-          };
-        });
-      };
 
       const addEmployeeQuestions = [
         {
@@ -190,7 +207,7 @@ const init = async () => {
           when: (answers) => {
             return answers.hasManager;
           },
-          choices: generateManagerChoices(allEmployees),
+          choices: generateEmployeeChoices(allEmployees),
         },
       ];
 
@@ -211,24 +228,6 @@ const init = async () => {
     if (option === "updateRole") {
       const allEmployees = await db.query(`SELECT * FROM employee`);
       const allRoles = await db.query(`SELECT * FROM role`);
-
-      const generateEmployeeChoices = (employees) => {
-        return employees.map((employee) => {
-          return {
-            name: `${employee.first_name} ${employee.last_name}`,
-            value: employee.id,
-          };
-        });
-      };
-
-      const generateRoleChoices = (roles) => {
-        return roles.map((role) => {
-          return {
-            name: role.title,
-            value: role.id,
-          };
-        });
-      };
 
       const whichEmployee = {
         type: "list",
@@ -259,15 +258,6 @@ const init = async () => {
     if (option === "updateManager") {
       const allEmployees = await db.query(`SELECT * FROM employee`);
 
-      const generateEmployeeChoices = (employees) => {
-        return employees.map((employee) => {
-          return {
-            name: `${employee.first_name} ${employee.last_name}`,
-            value: employee.id,
-          };
-        });
-      };
-
       const whichEmployee = {
         type: "list",
         message: "Which employee would you like to update?",
@@ -281,20 +271,11 @@ const init = async () => {
         (employee) => employee.id !== chosenEmployee.id
       );
 
-      const generateManagerChoices = (employees) => {
-        return employees.map((employee) => {
-          return {
-            name: `${employee.first_name} ${employee.last_name}`,
-            value: employee.id,
-          };
-        });
-      };
-
       const newManager = {
         type: "list",
         message: `Who is ${chosenEmployee.first_name} ${chosenEmployee.last_name}'s manager?`,
         name: "id",
-        choices: generateManagerChoices(newEmployeeArray),
+        choices: generateEmployeeChoices(newEmployeeArray),
       };
 
       const chosenManager = await inquirer.prompt(newManager);
