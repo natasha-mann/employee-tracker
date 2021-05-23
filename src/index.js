@@ -77,8 +77,8 @@ const init = async () => {
           name: "Add Department",
         },
         {
-          value: "removeDepartment",
-          name: "Remove Department",
+          value: "deleteDepartment",
+          name: "Delete Department",
         },
         {
           short: "Department Spend",
@@ -310,7 +310,7 @@ const init = async () => {
     if (option === "addRole") {
       const allDepartments = await db.query(`SELECT * FROM department`);
 
-      const generateChoices = (departments) => {
+      const generateDepartmentChoices = (departments) => {
         return departments.map((department) => {
           return {
             name: department.name,
@@ -334,7 +334,7 @@ const init = async () => {
           type: "list",
           message: "Which department is this role in?:",
           name: "department_id",
-          choices: generateChoices(allDepartments),
+          choices: generateDepartmentChoices(allDepartments),
         },
       ];
 
@@ -364,6 +364,34 @@ const init = async () => {
       const answers = await inquirer.prompt(addDepartmentQuestion);
 
       await db.queryParams(`INSERT INTO ?? SET ?`, ["department", answers]);
+    }
+
+    if (option === "deleteDepartment") {
+      const allDepartments = await db.query(`SELECT * FROM department`);
+
+      const generateDepartmentChoices = (departments) => {
+        return departments.map((department) => {
+          return {
+            name: department.name,
+            value: department.id,
+          };
+        });
+      };
+
+      const whichDepartment = {
+        type: "list",
+        message: "Which department is this role in?:",
+        name: "id",
+        choices: generateDepartmentChoices(allDepartments),
+      };
+
+      const chosenDepartment = await inquirer.prompt(whichDepartment);
+
+      db.queryParams(`DELETE FROM ?? WHERE ?? = ?`, [
+        "department",
+        "id",
+        chosenDepartment.id,
+      ]);
     }
 
     if (option === "EXIT") {
