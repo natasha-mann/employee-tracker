@@ -411,7 +411,7 @@ const init = async () => {
       const chosenDepartment = await inquirer.prompt(whichDepartment);
 
       const totalSpend = await db.query(`
-      SELECT name as "Department", SUM(salary) "Total Budget Spend"
+      SELECT name as "Department", SUM(salary) "Total Budget Spend", COUNT(employee.id) "Number of Employees"
         FROM employee
         LEFT JOIN role ON role.id = employee.role_id
         LEFT JOIN department ON role.department_id = department.id
