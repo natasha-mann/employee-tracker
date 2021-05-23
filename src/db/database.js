@@ -36,30 +36,32 @@ class Db {
     );
   }
 
-  selectAll(tableName) {
+  query(sqlQuery) {
     return new Promise((resolve, reject) => {
       const handleQuery = (err, rows) => {
         if (err) reject(err);
         resolve(rows);
       };
 
-      this.connection.query(`SELECT * FROM ${tableName}`, handleQuery);
+      this.connection.query(sqlQuery, handleQuery);
     });
   }
 
-  insert(tableName, data) {
+  queryParams(sqlQuery, args, info = false) {
     return new Promise((resolve, reject) => {
       const handleQuery = (err, rows) => {
-        if (err) reject(err);
-        console.log("Successfully inserted data");
+        if (err) {
+          reject(err);
+        }
+
         resolve(rows);
       };
 
-      this.connection.query(
-        `INSERT INTO ${tableName} SET ?`,
-        data,
-        handleQuery
-      );
+      const query = this.connection.query(sqlQuery, args, handleQuery);
+
+      if (info) {
+        console.log(query.sql);
+      }
     });
   }
 }
