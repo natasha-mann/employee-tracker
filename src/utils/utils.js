@@ -1,11 +1,3 @@
-const leftJoin = () => {
-  return `
-SELECT ?? as ?, ?? as ?, ?? as ?
-FROM ?? 
-LEFT JOIN ?? ON ?? = ??
-`;
-};
-
 const generateEmployeeChoices = (employees) => {
   return employees.map((employee) => {
     return {
@@ -34,7 +26,6 @@ const generateDepartmentChoices = (departments) => {
 };
 
 module.exports = {
-  leftJoin,
   generateEmployeeChoices,
   generateRoleChoices,
   generateDepartmentChoices,

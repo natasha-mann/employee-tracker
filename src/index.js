@@ -7,7 +7,6 @@ colors.setTheme({
 
 const Db = require("./db/database");
 const {
-  leftJoin,
   generateEmployeeChoices,
   generateRoleChoices,
   generateDepartmentChoices,
@@ -357,18 +356,25 @@ const init = async () => {
     }
 
     if (option === "allRoles") {
-      const rolesAndDepartments = await db.queryParams(leftJoin(), [
-        "title",
-        "Role",
-        "salary",
-        "Salary",
-        "name",
-        "Department",
-        "role",
-        "department",
-        "role.department_id",
-        "department.id",
-      ]);
+      const rolesAndDepartments = await db.queryParams(
+        `
+      SELECT ?? as ?, ?? as ?, ?? as ?
+      FROM ?? 
+      LEFT JOIN ?? ON ?? = ??
+      `,
+        [
+          "title",
+          "Role",
+          "salary",
+          "Salary",
+          "name",
+          "Department",
+          "role",
+          "department",
+          "role.department_id",
+          "department.id",
+        ]
+      );
 
       if (rolesAndDepartments.length) {
         console.table(rolesAndDepartments);
