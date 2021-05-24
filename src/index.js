@@ -255,7 +255,7 @@ const init = async () => {
 
       const newRole = {
         type: "list",
-        message: `What is ${chosenEmployee.first_name} ${chosenEmployee.last_name}'s role?`,
+        message: `What is the employee's new role?`,
         name: "id",
         choices: generateRoleChoices(allRoles),
       };
@@ -289,7 +289,7 @@ const init = async () => {
 
       const newManager = {
         type: "list",
-        message: `Who is ${chosenEmployee.first_name} ${chosenEmployee.last_name}'s manager?`,
+        message: `Who is the employee's new manager?`,
         name: "id",
         choices: generateEmployeeChoices(newEmployeeArray),
       };
