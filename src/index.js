@@ -105,8 +105,7 @@ const init = async () => {
       LEFT JOIN employee employee_manager ON employee_role.manager_id = employee_manager.id`);
 
       if (employeeData.length) {
-        const table = cTable.getTable(employeeData);
-        console.log(table);
+        console.table(employeeData);
       } else {
         console.log("There are currently no employees to view.");
       }
@@ -134,8 +133,7 @@ const init = async () => {
         LEFT JOIN department ON role.department_id = department.id
         WHERE role.department_id = ${chosenDepartment.id};`);
 
-        const table = cTable.getTable(employeeByDepartment);
-        console.log(table);
+        console.table(employeeByDepartment);
       } else {
         console.log("There are currently no employees to view. ");
       }
@@ -162,8 +160,7 @@ const init = async () => {
         WHERE employee_role.manager_id = ${chosenManager.id}`);
 
         if (employeesByManager.length) {
-          const table = cTable.getTable(employeesByManager);
-          console.log(table);
+          console.table(employeesByManager);
         } else {
           console.log("This employee is not a manager.");
         }
@@ -370,8 +367,7 @@ const init = async () => {
       ]);
 
       if (rolesAndDepartments.length) {
-        const table = cTable.getTable(rolesAndDepartments);
-        console.log(table);
+        console.table(rolesAndDepartments);
       } else {
         console.log("There are currently no roles to view.");
       }
@@ -445,8 +441,7 @@ const init = async () => {
       );
 
       if (allDepartments.length) {
-        const table = cTable.getTable(allDepartments);
-        console.log(table);
+        console.table(allDepartments);
       } else {
         console.log("There are currently no departments to view.");
       }
@@ -513,8 +508,7 @@ const init = async () => {
         LEFT JOIN department ON role.department_id = department.id
         WHERE role.department_id = ${chosenDepartment.id};`);
 
-        const table = cTable.getTable(totalSpend);
-        console.log(table);
+        console.table(totalSpend);
       } else {
         console.log(
           "Please add some employees first. Currently the total spend is £0"
