@@ -167,11 +167,23 @@ const init = async () => {
           type: "input",
           message: "Enter the first name of the employee:",
           name: "first_name",
+          validate: function (first_name) {
+            return (
+              /[^0-9]/.test(first_name) ||
+              "Please enter the employee's first name."
+            );
+          },
         },
         {
           type: "input",
           message: "Enter the last name of the employee:",
           name: "last_name",
+          validate: function (last_name) {
+            return (
+              /[^0-9]/.test(last_name) ||
+              "Please enter the employee's last name."
+            );
+          },
         },
         {
           type: "list",
@@ -239,14 +251,15 @@ const init = async () => {
         choices: generateEmployeeChoices(allEmployees),
       };
 
+      const chosenEmployee = await inquirer.prompt(whichEmployee);
+
       const newRole = {
         type: "list",
-        message: "What is the employee's role?",
+        message: `What is ${chosenEmployee.first_name} ${chosenEmployee.last_name}'s role?`,
         name: "id",
         choices: generateRoleChoices(allRoles),
       };
 
-      const chosenEmployee = await inquirer.prompt(whichEmployee);
       const chosenRole = await inquirer.prompt(newRole);
 
       await db.queryParams(`UPDATE ?? SET ?? = ? WHERE ?? = ?`, [
@@ -318,11 +331,17 @@ const init = async () => {
           type: "input",
           message: "Enter the name of the role:",
           name: "title",
+          validate: function (title) {
+            return /[^0-9]/.test(title) || "Please enter the employee's role.";
+          },
         },
         {
-          type: "number",
+          type: "input",
           message: "Enter the salary of the role:",
           name: "salary",
+          validate: function (salary) {
+            return /[0-9]/.test(salary) || "Please enter a number.";
+          },
         },
         {
           type: "list",
@@ -371,6 +390,9 @@ const init = async () => {
           type: "input",
           message: "Enter the name of the department:",
           name: "name",
+          validate: function (salary) {
+            return /[^0-9]/.test(salary) || "Please enter the department name.";
+          },
         },
       ];
 
