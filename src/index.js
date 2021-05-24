@@ -104,121 +104,159 @@ const init = async () => {
       LEFT JOIN department ON role.department_id = department.id
       LEFT JOIN employee employee_manager ON employee_role.manager_id = employee_manager.id`);
 
-      const table = cTable.getTable(employeeData);
-      console.log(table);
+      if (employeeData.length) {
+        const table = cTable.getTable(employeeData);
+        console.log(table);
+      } else {
+        console.log("There are currently no employees to view.");
+      }
     }
 
     if (option === "viewAllByDepartment") {
       const allDepartments = await db.query(`SELECT * FROM department`);
 
-      const whichDepartmentQuestion = {
-        type: "list",
-        message: "Which department's employees would you like to see?",
-        name: "id",
-        choices: generateDepartmentChoices(allDepartments),
-      };
+      if (allDepartments.length) {
+        const whichDepartmentQuestion = {
+          type: "list",
+          message: "Which department's employees would you like to see?",
+          name: "id",
+          choices: generateDepartmentChoices(allDepartments),
+        };
 
-      const chosenDepartment = await inquirer.prompt(whichDepartmentQuestion);
+        const chosenDepartment = await inquirer.prompt(whichDepartmentQuestion);
 
-      const employeeByDepartment = await db.query(`
-      SELECT employee_role.first_name as "First Name", employee_role.last_name as "Last Name", title as "Role", name as "Department"
-      FROM employee employee_role
-      LEFT JOIN role ON employee_role.role_id = role.id
-      LEFT JOIN department ON role.department_id = department.id
-      WHERE role.department_id = ${chosenDepartment.id};`);
+        const employeeByDepartment = await db.query(`
+        SELECT employee_role.first_name as "First Name", employee_role.last_name as "Last Name", title as "Role", name as "Department"
+        FROM employee employee_role
+        LEFT JOIN role ON employee_role.role_id = role.id
+        LEFT JOIN department ON role.department_id = department.id
+        WHERE role.department_id = ${chosenDepartment.id};`);
 
-      const table = cTable.getTable(employeeByDepartment);
-      console.log(table);
+        const table = cTable.getTable(employeeByDepartment);
+        console.log(table);
+      } else {
+        console.log(
+          "There are currently no departments to view. Please add a new department first."
+        );
+      }
     }
 
     if (option === "viewAllByManager") {
       const allEmployees = await db.query(`SELECT * FROM employee`);
 
-      const whichManagerQuestion = {
-        type: "list",
-        message: "Which manager's employees would you like to see?",
-        name: "id",
-        choices: generateEmployeeChoices(allEmployees),
-      };
+      if (allEmployees.length) {
+        const whichManagerQuestion = {
+          type: "list",
+          message: "Which manager's employees would you like to see?",
+          name: "id",
+          choices: generateEmployeeChoices(allEmployees),
+        };
 
-      const chosenManager = await inquirer.prompt(whichManagerQuestion);
+        const chosenManager = await inquirer.prompt(whichManagerQuestion);
 
-      const employeesByManager =
-        await db.query(`SELECT employee_role.first_name as "First Name", employee_role.last_name as "Last Name", title as "Role", CONCAT (employee_manager.first_name, " ", employee_manager.last_name) as "Manager Name"
-      FROM employee employee_role
-      LEFT JOIN role ON employee_role.role_id = role.id
-      LEFT JOIN employee employee_manager ON employee_role.manager_id = employee_manager.id
-      WHERE employee_role.manager_id = ${chosenManager.id}`);
+        const employeesByManager =
+          await db.query(`SELECT employee_role.first_name as "First Name", employee_role.last_name as "Last Name", title as "Role", CONCAT (employee_manager.first_name, " ", employee_manager.last_name) as "Manager Name"
+        FROM employee employee_role
+        LEFT JOIN role ON employee_role.role_id = role.id
+        LEFT JOIN employee employee_manager ON employee_role.manager_id = employee_manager.id
+        WHERE employee_role.manager_id = ${chosenManager.id}`);
 
-      if (employeesByManager.length) {
-        const table = cTable.getTable(employeesByManager);
-        console.log(table);
+        if (employeesByManager.length) {
+          const table = cTable.getTable(employeesByManager);
+          console.log(table);
+        } else {
+          console.log("This employee is not a manager.");
+        }
       } else {
-        console.log("This employee is not a manager.");
+        console.log("There are currently no employees to view.");
       }
     }
 
     if (option === "addEmployee") {
       const allRoles = await db.query(`SELECT * FROM role`);
       const allEmployees = await db.query(`SELECT * FROM employee`);
+      const allDepartments = await db.query(`SELECT * FROM department`);
 
-      const addEmployeeQuestions = [
-        {
-          type: "input",
-          message: "Enter the first name of the employee:",
-          name: "first_name",
-          validate: function (first_name) {
-            return (
-              /[^0-9]/.test(first_name) ||
-              "Please enter the employee's first name."
-            );
+      if (!allRoles.length) {
+        console.log("Please add a job role first!");
+      } else if (!allDepartments.length) {
+        console.log("Please add a department and some roles first!");
+      } else {
+        const addEmployeeQuestions = [
+          {
+            type: "input",
+            message: "Enter the first name of the employee:",
+            name: "first_name",
+            validate: function (first_name) {
+              return (
+                /[^0-9]/.test(first_name) ||
+                "Please enter the employee's first name."
+              );
+            },
           },
-        },
-        {
-          type: "input",
-          message: "Enter the last name of the employee:",
-          name: "last_name",
-          validate: function (last_name) {
-            return (
-              /[^0-9]/.test(last_name) ||
-              "Please enter the employee's last name."
-            );
+          {
+            type: "input",
+            message: "Enter the last name of the employee:",
+            name: "last_name",
+            validate: function (last_name) {
+              return (
+                /[^0-9]/.test(last_name) ||
+                "Please enter the employee's last name."
+              );
+            },
           },
-        },
-        {
-          type: "list",
-          message: "Select the employee's role:",
-          name: "role_id",
-          choices: generateRoleChoices(allRoles),
-        },
-        {
-          type: "confirm",
-          message: "Does the employee have a manager?",
-          name: "hasManager",
-        },
-        {
-          type: "list",
-          message: "Select the employee's manager:",
-          name: "manager_id",
-          when: (answers) => {
-            return answers.hasManager;
+          {
+            type: "list",
+            message: "Select the employee's role:",
+            name: "role_id",
+            choices: generateRoleChoices(allRoles),
           },
-          choices: generateEmployeeChoices(allEmployees),
-        },
-      ];
+        ];
 
-      const { first_name, last_name, role_id, manager_id } =
-        await inquirer.prompt(addEmployeeQuestions);
+        const { first_name, last_name, role_id } = await inquirer.prompt(
+          addEmployeeQuestions
+        );
 
-      await db.queryParams(`INSERT INTO ?? SET ?`, [
-        "employee",
-        {
-          first_name,
-          last_name,
-          role_id,
-          manager_id,
-        },
-      ]);
+        if (!allEmployees.length) {
+          await db.queryParams(`INSERT INTO ?? SET ?`, [
+            "employee",
+            {
+              first_name,
+              last_name,
+              role_id,
+            },
+          ]);
+        } else {
+          const setManagerQuestions = [
+            {
+              type: "confirm",
+              message: "Does the employee have a manager?",
+              name: "hasManager",
+            },
+            {
+              type: "list",
+              message: "Select the employee's manager:",
+              name: "manager_id",
+              when: (answers) => {
+                return answers.hasManager;
+              },
+              choices: generateEmployeeChoices(allEmployees),
+            },
+          ];
+
+          const { manager_id } = await inquirer.prompt(setManagerQuestions);
+
+          await db.queryParams(`INSERT INTO ?? SET ?`, [
+            "employee",
+            {
+              first_name,
+              last_name,
+              role_id,
+              manager_id,
+            },
+          ]);
+        }
+      }
     }
 
     if (option === "removeEmployee") {
@@ -326,34 +364,40 @@ const init = async () => {
     if (option === "addRole") {
       const allDepartments = await db.query(`SELECT * FROM department`);
 
-      const addRoleQuestions = [
-        {
-          type: "input",
-          message: "Enter the name of the role:",
-          name: "title",
-          validate: function (title) {
-            return /[^0-9]/.test(title) || "Please enter the employee's role.";
+      if (!allDepartments.length) {
+        console.log("Please add a department first!");
+      } else {
+        const addRoleQuestions = [
+          {
+            type: "input",
+            message: "Enter the name of the role:",
+            name: "title",
+            validate: function (title) {
+              return (
+                /[^0-9]/.test(title) || "Please enter the employee's role."
+              );
+            },
           },
-        },
-        {
-          type: "input",
-          message: "Enter the salary of the role:",
-          name: "salary",
-          validate: function (salary) {
-            return /[0-9]/.test(salary) || "Please enter a number.";
+          {
+            type: "input",
+            message: "Enter the salary of the role:",
+            name: "salary",
+            validate: function (salary) {
+              return /[0-9]/.test(salary) || "Please enter a number.";
+            },
           },
-        },
-        {
-          type: "list",
-          message: "Which department is this role in?:",
-          name: "department_id",
-          choices: generateDepartmentChoices(allDepartments),
-        },
-      ];
+          {
+            type: "list",
+            message: "Which department is this role in?:",
+            name: "department_id",
+            choices: generateDepartmentChoices(allDepartments),
+          },
+        ];
 
-      const answers = await inquirer.prompt(addRoleQuestions);
+        const answers = await inquirer.prompt(addRoleQuestions);
 
-      await db.queryParams(`INSERT INTO ?? SET ?`, ["role", answers]);
+        await db.queryParams(`INSERT INTO ?? SET ?`, ["role", answers]);
+      }
     }
 
     if (option === "removeRole") {
