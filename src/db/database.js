@@ -14,12 +14,13 @@ class Db {
     this.connection = mysql.createConnection(dbOptions);
   }
 
-  start() {
+  start(message) {
     return new Promise((resolve, reject) => {
       const onConnect = (err) => {
         if (err) reject(err);
         console.log(
-          `Connection to ${this.database} database was successful with id ${this.connection.threadId}`
+          message ||
+            `Connection to ${this.database} database was successful with id ${this.connection.threadId}`
         );
         resolve();
       };

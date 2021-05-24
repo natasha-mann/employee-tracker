@@ -11,7 +11,7 @@ const { generateEmployeeChoices, generateChoices } = require("./utils/utils");
 const init = async () => {
   const db = new Db("workplace_db");
 
-  await db.start();
+  await db.start("\n  WELCOME TO YOUR EMPLOYEE TRACKER.  \n".custom);
 
   let inProgress = true;
 
@@ -106,7 +106,7 @@ const init = async () => {
       if (employeeData.length) {
         console.table(employeeData);
       } else {
-        console.log("\nThere are currently no employees to view.\n".custom);
+        console.log("\n There are currently no employees to view. \n".custom);
       }
     }
 
@@ -134,7 +134,7 @@ const init = async () => {
 
         console.table(employeeByDepartment);
       } else {
-        console.log("\nThere are currently no employees to view.\n".custom);
+        console.log("\n There are currently no employees to view. \n".custom);
       }
     }
 
@@ -173,10 +173,12 @@ const init = async () => {
       const allEmployees = await db.query(`SELECT * FROM employee`);
       const allDepartments = await db.query(`SELECT * FROM department`);
 
-      if (!allRoles.length) {
-        console.log("\nPlease add a job role first!\n".custom);
-      } else if (!allDepartments.length) {
-        console.log("\nPlease add a department and some roles first!\n".custom);
+      if (!allDepartments.length) {
+        console.log(
+          "\n Please add a department and some roles first. \n".custom
+        );
+      } else if (!allRoles.length) {
+        console.log("\n Please add a job role first. \n".custom);
       } else {
         const addEmployeeQuestions = [
           {
@@ -274,7 +276,7 @@ const init = async () => {
           chosenEmployee.id,
         ]);
       } else {
-        console.log("\nThere are no employees to remove.\n".custom);
+        console.log("\n There are no employees to remove. \n".custom);
       }
     }
 
@@ -309,7 +311,9 @@ const init = async () => {
           `${chosenEmployee.id}`,
         ]);
       } else {
-        console.log("\nThere are currently no employees.\n".custom);
+        console.log(
+          "\n There are currently no employees in the database. \n".custom
+        );
       }
     }
 
@@ -375,7 +379,7 @@ const init = async () => {
       if (rolesAndDepartments.length) {
         console.table(rolesAndDepartments);
       } else {
-        console.log("\nThere are currently no roles to view.\n".custom);
+        console.log("\n There are currently no roles to view. \n".custom);
       }
     }
 
@@ -383,7 +387,7 @@ const init = async () => {
       const allDepartments = await db.query(`SELECT * FROM department`);
 
       if (!allDepartments.length) {
-        console.log("\nPlease add a department first!\n".custom);
+        console.log("\n Please add a department first! \n".custom);
       } else {
         const addRoleQuestions = [
           {
@@ -437,7 +441,7 @@ const init = async () => {
           chosenRole.id,
         ]);
       } else {
-        console.log("\nThere are currently no roles to remove.\n".custom);
+        console.log("\n There are currently no roles to remove. \n".custom);
       }
     }
 
@@ -449,7 +453,7 @@ const init = async () => {
       if (allDepartments.length) {
         console.table(allDepartments);
       } else {
-        console.log("\nThere are currently no departments to view.\n".custom);
+        console.log("\n There are currently no departments to view. \n".custom);
       }
     }
 
@@ -489,7 +493,9 @@ const init = async () => {
           chosenDepartment.id,
         ]);
       } else {
-        console.log("\nThere are currently no departments to remove.\n".custom);
+        console.log(
+          "\n There are currently no departments to remove. \n".custom
+        );
       }
     }
 
@@ -517,7 +523,7 @@ const init = async () => {
         console.table(totalSpend);
       } else {
         console.log(
-          "\nPlease add some employees first. Currently the total spend is £0\n"
+          "\n Please add some employees first. Currently the total spend is £0. \n"
             .custom
         );
       }
@@ -525,7 +531,7 @@ const init = async () => {
 
     if (option === "EXIT") {
       inProgress = false;
-      db.end("\nThank you for using our app.\n");
+      db.end("\n Thank you for using our app. \n".custom);
     }
   }
 };
