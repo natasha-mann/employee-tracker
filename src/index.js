@@ -113,9 +113,11 @@ const init = async () => {
     }
 
     if (option === "viewAllByDepartment") {
+      const allEmployees = await db.query(`SELECT * FROM employee`);
+
       const allDepartments = await db.query(`SELECT * FROM department`);
 
-      if (allDepartments.length) {
+      if (allEmployees.length) {
         const whichDepartmentQuestion = {
           type: "list",
           message: "Which department's employees would you like to see?",
@@ -135,9 +137,7 @@ const init = async () => {
         const table = cTable.getTable(employeeByDepartment);
         console.log(table);
       } else {
-        console.log(
-          "There are currently no departments to view. Please add a new department first."
-        );
+        console.log("There are currently no employees to view. ");
       }
     }
 
@@ -262,85 +262,97 @@ const init = async () => {
     if (option === "removeEmployee") {
       const allEmployees = await db.query(`SELECT * FROM employee`);
 
-      const whichEmployee = {
-        type: "list",
-        message: "Which role would you like to remove?",
-        name: "id",
-        choices: generateEmployeeChoices(allEmployees),
-      };
+      if (allEmployees.length) {
+        const whichEmployee = {
+          type: "list",
+          message: "Which role would you like to remove?",
+          name: "id",
+          choices: generateEmployeeChoices(allEmployees),
+        };
 
-      const chosenEmployee = await inquirer.prompt(whichEmployee);
+        const chosenEmployee = await inquirer.prompt(whichEmployee);
 
-      db.queryParams(`DELETE FROM ?? WHERE ?? = ?`, [
-        "employee",
-        "id",
-        chosenEmployee.id,
-      ]);
+        db.queryParams(`DELETE FROM ?? WHERE ?? = ?`, [
+          "employee",
+          "id",
+          chosenEmployee.id,
+        ]);
+      } else {
+        console.log("There are no employees to remove.");
+      }
     }
 
     if (option === "updateRole") {
       const allEmployees = await db.query(`SELECT * FROM employee`);
       const allRoles = await db.query(`SELECT * FROM role`);
 
-      const whichEmployee = {
-        type: "list",
-        message: "Which employee would you like to update?",
-        name: "id",
-        choices: generateEmployeeChoices(allEmployees),
-      };
+      if (allEmployees.length) {
+        const whichEmployee = {
+          type: "list",
+          message: "Which employee would you like to update?",
+          name: "id",
+          choices: generateEmployeeChoices(allEmployees),
+        };
 
-      const chosenEmployee = await inquirer.prompt(whichEmployee);
+        const chosenEmployee = await inquirer.prompt(whichEmployee);
 
-      const newRole = {
-        type: "list",
-        message: `What is the employee's new role?`,
-        name: "id",
-        choices: generateRoleChoices(allRoles),
-      };
+        const newRole = {
+          type: "list",
+          message: `What is the employee's new role?`,
+          name: "id",
+          choices: generateRoleChoices(allRoles),
+        };
 
-      const chosenRole = await inquirer.prompt(newRole);
+        const chosenRole = await inquirer.prompt(newRole);
 
-      await db.queryParams(`UPDATE ?? SET ?? = ? WHERE ?? = ?`, [
-        "employee",
-        "role_id",
-        `${chosenRole.id}`,
-        "id",
-        `${chosenEmployee.id}`,
-      ]);
+        await db.queryParams(`UPDATE ?? SET ?? = ? WHERE ?? = ?`, [
+          "employee",
+          "role_id",
+          `${chosenRole.id}`,
+          "id",
+          `${chosenEmployee.id}`,
+        ]);
+      } else {
+        console.log("There are currently no employees.");
+      }
     }
 
     if (option === "updateManager") {
       const allEmployees = await db.query(`SELECT * FROM employee`);
 
-      const whichEmployee = {
-        type: "list",
-        message: "Which employee would you like to update?",
-        name: "id",
-        choices: generateEmployeeChoices(allEmployees),
-      };
+      if (allEmployees.length > 1) {
+        const whichEmployee = {
+          type: "list",
+          message: "Which employee would you like to update?",
+          name: "id",
+          choices: generateEmployeeChoices(allEmployees),
+        };
 
-      const chosenEmployee = await inquirer.prompt(whichEmployee);
+        const chosenEmployee = await inquirer.prompt(whichEmployee);
 
-      const newEmployeeArray = allEmployees.filter(
-        (employee) => employee.id !== chosenEmployee.id
-      );
+        const newEmployeeArray = allEmployees.filter(
+          (employee) => employee.id !== chosenEmployee.id
+        );
 
-      const newManager = {
-        type: "list",
-        message: `Who is the employee's new manager?`,
-        name: "id",
-        choices: generateEmployeeChoices(newEmployeeArray),
-      };
+        const newManager = {
+          type: "list",
+          message: `Who is the employee's new manager?`,
+          name: "id",
+          choices: generateEmployeeChoices(newEmployeeArray),
+        };
 
-      const chosenManager = await inquirer.prompt(newManager);
+        const chosenManager = await inquirer.prompt(newManager);
 
-      await db.queryParams(`UPDATE ?? SET ?? = ? WHERE ?? = ?`, [
-        "employee",
-        "manager_id",
-        `${chosenManager.id}`,
-        "id",
-        `${chosenEmployee.id}`,
-      ]);
+        await db.queryParams(`UPDATE ?? SET ?? = ? WHERE ?? = ?`, [
+          "employee",
+          "manager_id",
+          `${chosenManager.id}`,
+          "id",
+          `${chosenEmployee.id}`,
+        ]);
+      } else {
+        console.log("Please add additional employees first.");
+      }
     }
 
     if (option === "allRoles") {
@@ -357,8 +369,12 @@ const init = async () => {
         "department.id",
       ]);
 
-      const table = cTable.getTable(rolesAndDepartment);
-      console.log(table);
+      if (rolesAndDepartments.length) {
+        const table = cTable.getTable(rolesAndDepartments);
+        console.log(table);
+      } else {
+        console.log("There are currently no roles to view.");
+      }
     }
 
     if (option === "addRole") {
@@ -403,20 +419,24 @@ const init = async () => {
     if (option === "removeRole") {
       const allRoles = await db.query(`SELECT * FROM role`);
 
-      const whichRole = {
-        type: "list",
-        message: "Which role would you like to remove?",
-        name: "id",
-        choices: generateRoleChoices(allRoles),
-      };
+      if (allRoles.length) {
+        const whichRole = {
+          type: "list",
+          message: "Which role would you like to remove?",
+          name: "id",
+          choices: generateRoleChoices(allRoles),
+        };
 
-      const chosenRole = await inquirer.prompt(whichRole);
+        const chosenRole = await inquirer.prompt(whichRole);
 
-      db.queryParams(`DELETE FROM ?? WHERE ?? = ?`, [
-        "role",
-        "id",
-        chosenRole.id,
-      ]);
+        db.queryParams(`DELETE FROM ?? WHERE ?? = ?`, [
+          "role",
+          "id",
+          chosenRole.id,
+        ]);
+      } else {
+        console.log("There are currently no roles to remove.");
+      }
     }
 
     if (option === "allDepartments") {
@@ -424,8 +444,12 @@ const init = async () => {
         `SELECT name as "Department" FROM department`
       );
 
-      const table = cTable.getTable(allDepartments);
-      console.log(table);
+      if (allDepartments.length) {
+        const table = cTable.getTable(allDepartments);
+        console.log(table);
+      } else {
+        console.log("There are currently no departments to view.");
+      }
     }
 
     if (option === "addDepartment") {
@@ -448,43 +472,54 @@ const init = async () => {
     if (option === "removeDepartment") {
       const allDepartments = await db.query(`SELECT * FROM department`);
 
-      const whichDepartment = {
-        type: "list",
-        message: "Which department would you like to remove?",
-        name: "id",
-        choices: generateDepartmentChoices(allDepartments),
-      };
+      if (allDepartments.length) {
+        const whichDepartment = {
+          type: "list",
+          message: "Which department would you like to remove?",
+          name: "id",
+          choices: generateDepartmentChoices(allDepartments),
+        };
 
-      const chosenDepartment = await inquirer.prompt(whichDepartment);
+        const chosenDepartment = await inquirer.prompt(whichDepartment);
 
-      db.queryParams(`DELETE FROM ?? WHERE ?? = ?`, [
-        "department",
-        "id",
-        chosenDepartment.id,
-      ]);
+        db.queryParams(`DELETE FROM ?? WHERE ?? = ?`, [
+          "department",
+          "id",
+          chosenDepartment.id,
+        ]);
+      } else {
+        console.log("There are currently no departments to remove.");
+      }
     }
 
     if (option === "departmentSpend") {
       const allDepartments = await db.query(`SELECT * FROM department`);
+      const allEmployees = await db.query(`SELECT * FROM employee`);
 
-      const whichDepartment = {
-        type: "list",
-        message: "Which department's budget spend would you like to view?",
-        name: "id",
-        choices: generateDepartmentChoices(allDepartments),
-      };
+      if (allEmployees.length) {
+        const whichDepartment = {
+          type: "list",
+          message: "Which department's budget spend would you like to view?",
+          name: "id",
+          choices: generateDepartmentChoices(allDepartments),
+        };
 
-      const chosenDepartment = await inquirer.prompt(whichDepartment);
+        const chosenDepartment = await inquirer.prompt(whichDepartment);
 
-      const totalSpend = await db.query(`
+        const totalSpend = await db.query(`
       SELECT name as "Department", SUM(salary) "Total Budget Spend", COUNT(employee.id) "Number of Employees"
         FROM employee
         LEFT JOIN role ON role.id = employee.role_id
         LEFT JOIN department ON role.department_id = department.id
         WHERE role.department_id = ${chosenDepartment.id};`);
 
-      const table = cTable.getTable(totalSpend);
-      console.log(table);
+        const table = cTable.getTable(totalSpend);
+        console.log(table);
+      } else {
+        console.log(
+          "Please add some employees first. Currently the total spend is £0"
+        );
+      }
     }
 
     if (option === "EXIT") {
