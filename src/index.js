@@ -111,7 +111,7 @@ const init = async () => {
       if (employeeData.length) {
         console.table(employeeData);
       } else {
-        console.log("There are currently no employees to view.".custom);
+        console.log("\nThere are currently no employees to view.\n".custom);
       }
     }
 
@@ -139,7 +139,7 @@ const init = async () => {
 
         console.table(employeeByDepartment);
       } else {
-        console.log("There are currently no employees to view.".custom);
+        console.log("\nThere are currently no employees to view.\n".custom);
       }
     }
 
@@ -166,10 +166,10 @@ const init = async () => {
         if (employeesByManager.length) {
           console.table(employeesByManager);
         } else {
-          console.log("This employee is not a manager.".custom);
+          console.log("\nThis employee is not a manager.\n".custom);
         }
       } else {
-        console.log("There are currently no employees to view.".custom);
+        console.log("\nThere are currently no employees to view.\n".custom);
       }
     }
 
@@ -179,9 +179,9 @@ const init = async () => {
       const allDepartments = await db.query(`SELECT * FROM department`);
 
       if (!allRoles.length) {
-        console.log("Please add a job role first!".custom);
+        console.log("\nPlease add a job role first!\n".custom);
       } else if (!allDepartments.length) {
-        console.log("Please add a department and some roles first!".custom);
+        console.log("\nPlease add a department and some roles first!\n".custom);
       } else {
         const addEmployeeQuestions = [
           {
@@ -279,7 +279,7 @@ const init = async () => {
           chosenEmployee.id,
         ]);
       } else {
-        console.log("There are no employees to remove.".custom);
+        console.log("\nThere are no employees to remove.\n".custom);
       }
     }
 
@@ -314,7 +314,7 @@ const init = async () => {
           `${chosenEmployee.id}`,
         ]);
       } else {
-        console.log("There are currently no employees.".custom);
+        console.log("\nThere are currently no employees.\n".custom);
       }
     }
 
@@ -352,7 +352,7 @@ const init = async () => {
           `${chosenEmployee.id}`,
         ]);
       } else {
-        console.log("Please add additional employees first.".custom);
+        console.log("\nPlease add additional employees first.\n".custom);
       }
     }
 
@@ -373,7 +373,7 @@ const init = async () => {
       if (rolesAndDepartments.length) {
         console.table(rolesAndDepartments);
       } else {
-        console.log("There are currently no roles to view.".custom);
+        console.log("\nThere are currently no roles to view.\n".custom);
       }
     }
 
@@ -381,7 +381,7 @@ const init = async () => {
       const allDepartments = await db.query(`SELECT * FROM department`);
 
       if (!allDepartments.length) {
-        console.log("Please add a department first!".custom);
+        console.log("\nPlease add a department first!\n".custom);
       } else {
         const addRoleQuestions = [
           {
@@ -435,7 +435,7 @@ const init = async () => {
           chosenRole.id,
         ]);
       } else {
-        console.log("There are currently no roles to remove.".custom);
+        console.log("\nThere are currently no roles to remove.\n".custom);
       }
     }
 
@@ -447,7 +447,7 @@ const init = async () => {
       if (allDepartments.length) {
         console.table(allDepartments);
       } else {
-        console.log("There are currently no departments to view.".custom);
+        console.log("\nThere are currently no departments to view.\n".custom);
       }
     }
 
@@ -487,7 +487,7 @@ const init = async () => {
           chosenDepartment.id,
         ]);
       } else {
-        console.log("There are currently no departments to remove.".custom);
+        console.log("\nThere are currently no departments to remove.\n".custom);
       }
     }
 
@@ -515,7 +515,7 @@ const init = async () => {
         console.table(totalSpend);
       } else {
         console.log(
-          "Please add some employees first. Currently the total spend is £0"
+          "\nPlease add some employees first. Currently the total spend is £0\n"
             .custom
         );
       }
@@ -523,7 +523,7 @@ const init = async () => {
 
     if (option === "EXIT") {
       inProgress = false;
-      db.end("Thank you for using our app");
+      db.end("\nThank you for using our app.\n");
     }
   }
 };
