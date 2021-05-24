@@ -7,26 +7,16 @@ const generateEmployeeChoices = (employees) => {
   });
 };
 
-const generateRoleChoices = (roles) => {
-  return roles.map((role) => {
+const generateChoices = (array, value) => {
+  return array.map((each) => {
     return {
-      name: role.title,
-      value: role.id,
-    };
-  });
-};
-
-const generateDepartmentChoices = (departments) => {
-  return departments.map((department) => {
-    return {
-      name: department.name,
-      value: department.id,
+      name: each[value],
+      value: each.id,
     };
   });
 };
 
 module.exports = {
   generateEmployeeChoices,
-  generateRoleChoices,
-  generateDepartmentChoices,
+  generateChoices,
 };

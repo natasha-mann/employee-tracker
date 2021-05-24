@@ -6,11 +6,7 @@ colors.setTheme({
 });
 
 const Db = require("./db/database");
-const {
-  generateEmployeeChoices,
-  generateRoleChoices,
-  generateDepartmentChoices,
-} = require("./utils/utils");
+const { generateEmployeeChoices, generateChoices } = require("./utils/utils");
 
 const init = async () => {
   const db = new Db("workplace_db");
@@ -124,7 +120,7 @@ const init = async () => {
           type: "list",
           message: "Which department's employees would you like to see?",
           name: "id",
-          choices: generateDepartmentChoices(allDepartments),
+          choices: generateChoices(allDepartments, "name"),
         };
 
         const chosenDepartment = await inquirer.prompt(whichDepartmentQuestion);
@@ -209,7 +205,7 @@ const init = async () => {
             type: "list",
             message: "Select the employee's role:",
             name: "role_id",
-            choices: generateRoleChoices(allRoles),
+            choices: generateChoices(allRoles, "title"),
           },
         ];
 
@@ -300,7 +296,7 @@ const init = async () => {
           type: "list",
           message: `What is the employee's new role?`,
           name: "id",
-          choices: generateRoleChoices(allRoles),
+          choices: generateChoices(allRoles, "title"),
         };
 
         const chosenRole = await inquirer.prompt(newRole);
@@ -412,7 +408,7 @@ const init = async () => {
             type: "list",
             message: "Which department is this role in?:",
             name: "department_id",
-            choices: generateDepartmentChoices(allDepartments),
+            choices: generateChoices(allDepartments, "name"),
           },
         ];
 
@@ -430,7 +426,7 @@ const init = async () => {
           type: "list",
           message: "Which role would you like to remove?",
           name: "id",
-          choices: generateRoleChoices(allRoles),
+          choices: generateChoices(allRoles, "title"),
         };
 
         const chosenRole = await inquirer.prompt(whichRole);
@@ -482,7 +478,7 @@ const init = async () => {
           type: "list",
           message: "Which department would you like to remove?",
           name: "id",
-          choices: generateDepartmentChoices(allDepartments),
+          choices: generateChoices(allDepartments, "name"),
         };
 
         const chosenDepartment = await inquirer.prompt(whichDepartment);
@@ -506,7 +502,7 @@ const init = async () => {
           type: "list",
           message: "Which department's budget spend would you like to view?",
           name: "id",
-          choices: generateDepartmentChoices(allDepartments),
+          choices: generateChoices(allDepartments, "name"),
         };
 
         const chosenDepartment = await inquirer.prompt(whichDepartment);
