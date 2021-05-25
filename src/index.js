@@ -123,14 +123,14 @@ const init = async () => {
           choices: generateChoices(allDepartments, "name"),
         };
 
-        const chosenDepartment = await inquirer.prompt(whichDepartmentQuestion);
+        const { id } = await inquirer.prompt(whichDepartmentQuestion);
 
         const employeeByDepartment = await db.query(`
         SELECT employee_role.first_name as "First Name", employee_role.last_name as "Last Name", title as "Role", name as "Department"
         FROM employee employee_role
         LEFT JOIN role ON employee_role.role_id = role.id
         LEFT JOIN department ON role.department_id = department.id
-        WHERE role.department_id = ${chosenDepartment.id};`);
+        WHERE role.department_id = ${id};`);
 
         console.table(employeeByDepartment);
       } else {
@@ -149,14 +149,14 @@ const init = async () => {
           choices: generateEmployeeChoices(allEmployees),
         };
 
-        const chosenManager = await inquirer.prompt(whichManagerQuestion);
+        const { id } = await inquirer.prompt(whichManagerQuestion);
 
         const employeesByManager =
           await db.query(`SELECT employee_role.first_name as "First Name", employee_role.last_name as "Last Name", title as "Role", CONCAT (employee_manager.first_name, " ", employee_manager.last_name) as "Manager Name"
         FROM employee employee_role
         LEFT JOIN role ON employee_role.role_id = role.id
         LEFT JOIN employee employee_manager ON employee_role.manager_id = employee_manager.id
-        WHERE employee_role.manager_id = ${chosenManager.id}`);
+        WHERE employee_role.manager_id = ${id}`);
 
         if (employeesByManager.length) {
           console.table(employeesByManager);
@@ -268,13 +268,9 @@ const init = async () => {
           choices: generateEmployeeChoices(allEmployees),
         };
 
-        const chosenEmployee = await inquirer.prompt(whichEmployee);
+        const { id } = await inquirer.prompt(whichEmployee);
 
-        db.queryParams(`DELETE FROM ?? WHERE ?? = ?`, [
-          "employee",
-          "id",
-          chosenEmployee.id,
-        ]);
+        db.queryParams(`DELETE FROM ?? WHERE ?? = ?`, ["employee", "id", id]);
       } else {
         console.log("\n There are no employees to remove. \n".custom);
       }
@@ -328,10 +324,10 @@ const init = async () => {
           choices: generateEmployeeChoices(allEmployees),
         };
 
-        const chosenEmployee = await inquirer.prompt(whichEmployee);
+        const { id } = await inquirer.prompt(whichEmployee);
 
         const newEmployeeArray = allEmployees.filter(
-          (employee) => employee.id !== chosenEmployee.id
+          (employee) => employee.id !== id
         );
 
         const newManager = {
@@ -348,7 +344,7 @@ const init = async () => {
           "manager_id",
           `${chosenManager.id}`,
           "id",
-          `${chosenEmployee.id}`,
+          `${id}`,
         ]);
       } else {
         console.log("\nPlease add additional employees first.\n".custom);
@@ -416,9 +412,14 @@ const init = async () => {
           },
         ];
 
-        const answers = await inquirer.prompt(addRoleQuestions);
+        const { title, salary, department_id } = await inquirer.prompt(
+          addRoleQuestions
+        );
 
-        await db.queryParams(`INSERT INTO ?? SET ?`, ["role", answers]);
+        await db.queryParams(`INSERT INTO ?? SET ?`, [
+          "role",
+          { title, salary, department_id },
+        ]);
       }
     }
 
@@ -475,9 +476,9 @@ const init = async () => {
         },
       ];
 
-      const answers = await inquirer.prompt(addDepartmentQuestion);
+      const { name } = await inquirer.prompt(addDepartmentQuestion);
 
-      await db.queryParams(`INSERT INTO ?? SET ?`, ["department", answers]);
+      await db.queryParams(`INSERT INTO ?? SET ?`, ["department", { name }]);
     }
 
     if (option === "removeDepartment") {
@@ -534,7 +535,7 @@ const init = async () => {
         FROM employee
         LEFT JOIN role ON role.id = employee.role_id
         LEFT JOIN department ON role.department_id = department.id
-        WHERE role.department_id = ${chosenDepartment.id};`);
+        WHERE role.department_id = ${id};`);
 
         console.table(totalSpend);
       } else {
