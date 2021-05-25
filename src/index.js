@@ -426,20 +426,26 @@ const init = async () => {
       const allRoles = await db.query(`SELECT * FROM role`);
 
       if (allRoles.length) {
-        const whichRole = {
-          type: "list",
-          message: "Which role would you like to remove?",
-          name: "id",
-          choices: generateChoices(allRoles, "title"),
-        };
+        const whichRole = [
+          {
+            type: "list",
+            message: "Which role would you like to remove?",
+            name: "id",
+            choices: generateChoices(allRoles, "title"),
+          },
+          {
+            type: "confirm",
+            message:
+              "This action will also delete all employees with this role. Are you sure you want to continue?",
+            name: "confirm",
+          },
+        ];
 
-        const chosenRole = await inquirer.prompt(whichRole);
+        const { id, confirm } = await inquirer.prompt(whichRole);
 
-        db.queryParams(`DELETE FROM ?? WHERE ?? = ?`, [
-          "role",
-          "id",
-          chosenRole.id,
-        ]);
+        if (confirm) {
+          db.queryParams(`DELETE FROM ?? WHERE ?? = ?`, ["role", "id", id]);
+        }
       } else {
         console.log("\n There are currently no roles to remove. \n".custom);
       }
@@ -478,20 +484,30 @@ const init = async () => {
       const allDepartments = await db.query(`SELECT * FROM department`);
 
       if (allDepartments.length) {
-        const whichDepartment = {
-          type: "list",
-          message: "Which department would you like to remove?",
-          name: "id",
-          choices: generateChoices(allDepartments, "name"),
-        };
+        const whichDepartmentQuestions = [
+          {
+            type: "list",
+            message: "Which department would you like to remove?",
+            name: "id",
+            choices: generateChoices(allDepartments, "name"),
+          },
+          {
+            type: "confirm",
+            message:
+              "This action will also delete all role and employees linked to this department. Are you sure you want to continue?",
+            name: "confirm",
+          },
+        ];
 
-        const chosenDepartment = await inquirer.prompt(whichDepartment);
+        const { id, confirm } = await inquirer.prompt(whichDepartmentQuestions);
 
-        db.queryParams(`DELETE FROM ?? WHERE ?? = ?`, [
-          "department",
-          "id",
-          chosenDepartment.id,
-        ]);
+        if (confirm) {
+          db.queryParams(`DELETE FROM ?? WHERE ?? = ?`, [
+            "department",
+            "id",
+            id,
+          ]);
+        }
       } else {
         console.log(
           "\n There are currently no departments to remove. \n".custom
@@ -511,7 +527,7 @@ const init = async () => {
           choices: generateChoices(allDepartments, "name"),
         };
 
-        const chosenDepartment = await inquirer.prompt(whichDepartment);
+        const { id } = await inquirer.prompt(whichDepartment);
 
         const totalSpend = await db.query(`
       SELECT name as "Department", SUM(salary) "Total Budget Spend", COUNT(employee.id) "Number of Employees"
