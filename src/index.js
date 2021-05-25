@@ -7,6 +7,13 @@ colors.setTheme({
 
 const Db = require("./db/database");
 const { generateEmployeeChoices, generateChoices } = require("./utils/utils");
+const {
+  allEmployeesQuery,
+  byDepartmentQuery,
+  byManagerQuery,
+  allRolesQuery,
+  departmentSpendQuery,
+} = require("./utils/queries");
 
 const init = async () => {
   const db = new Db("workplace_db");
@@ -96,12 +103,7 @@ const init = async () => {
     const { option } = await inquirer.prompt(optionsQuestion);
 
     if (option === "viewAllEmployees") {
-      const employeeData =
-        await db.query(`SELECT employee_role.first_name as "First Name", employee_role.last_name as "Last Name", name as "Department", title as "Role", salary as "Salary",  CONCAT (employee_manager.first_name, " ", employee_manager.last_name) as "Manager Name"
-      FROM employee employee_role
-      LEFT JOIN role ON employee_role.role_id = role.id
-      LEFT JOIN department ON role.department_id = department.id
-      LEFT JOIN employee employee_manager ON employee_role.manager_id = employee_manager.id`);
+      const employeeData = await db.query(allEmployeesQuery());
 
       if (employeeData.length) {
         console.table(employeeData);
@@ -125,12 +127,7 @@ const init = async () => {
 
         const { id } = await inquirer.prompt(whichDepartmentQuestion);
 
-        const employeeByDepartment = await db.query(`
-        SELECT employee_role.first_name as "First Name", employee_role.last_name as "Last Name", title as "Role", name as "Department"
-        FROM employee employee_role
-        LEFT JOIN role ON employee_role.role_id = role.id
-        LEFT JOIN department ON role.department_id = department.id
-        WHERE role.department_id = ${id};`);
+        const employeeByDepartment = await db.query(byDepartmentQuery(id));
 
         console.table(employeeByDepartment);
       } else {
@@ -151,12 +148,7 @@ const init = async () => {
 
         const { id } = await inquirer.prompt(whichManagerQuestion);
 
-        const employeesByManager =
-          await db.query(`SELECT employee_role.first_name as "First Name", employee_role.last_name as "Last Name", title as "Role", CONCAT (employee_manager.first_name, " ", employee_manager.last_name) as "Manager Name"
-        FROM employee employee_role
-        LEFT JOIN role ON employee_role.role_id = role.id
-        LEFT JOIN employee employee_manager ON employee_role.manager_id = employee_manager.id
-        WHERE employee_role.manager_id = ${id}`);
+        const employeesByManager = await db.query(byManagerQuery(id));
 
         if (employeesByManager.length) {
           console.table(employeesByManager);
@@ -352,25 +344,7 @@ const init = async () => {
     }
 
     if (option === "allRoles") {
-      const rolesAndDepartments = await db.queryParams(
-        `
-      SELECT ?? as ?, ?? as ?, ?? as ?
-      FROM ?? 
-      LEFT JOIN ?? ON ?? = ??
-      `,
-        [
-          "title",
-          "Role",
-          "salary",
-          "Salary",
-          "name",
-          "Department",
-          "role",
-          "department",
-          "role.department_id",
-          "department.id",
-        ]
-      );
+      const rolesAndDepartments = await db.params(allRolesQuery());
 
       if (rolesAndDepartments.length) {
         console.table(rolesAndDepartments);
@@ -530,12 +504,7 @@ const init = async () => {
 
         const { id } = await inquirer.prompt(whichDepartment);
 
-        const totalSpend = await db.query(`
-      SELECT name as "Department", SUM(salary) "Total Budget Spend", COUNT(employee.id) "Number of Employees"
-        FROM employee
-        LEFT JOIN role ON role.id = employee.role_id
-        LEFT JOIN department ON role.department_id = department.id
-        WHERE role.department_id = ${id};`);
+        const totalSpend = await db.query(departmentSpendQuery(id));
 
         console.table(totalSpend);
       } else {
