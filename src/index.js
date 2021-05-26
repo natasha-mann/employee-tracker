@@ -3,6 +3,8 @@ const cTable = require("console.table");
 const colors = require("colors");
 colors.setTheme({
   custom: ["bgCyan", "black"],
+  success: ["bgGreen", "black"],
+  removed: ["bgRed", "white"],
 });
 
 const Db = require("./db/database");
@@ -216,6 +218,10 @@ const init = async () => {
               role_id,
             },
           ]);
+          console.log(
+            `\n New employee successfully added: ${first_name} ${last_name}. \n`
+              .success
+          );
         } else {
           const setManagerQuestions = [
             {
@@ -245,6 +251,10 @@ const init = async () => {
               manager_id,
             },
           ]);
+          console.log(
+            `\n New employee successfully added: ${first_name} ${last_name}. \n`
+              .success
+          );
         }
       }
     }
@@ -255,7 +265,7 @@ const init = async () => {
       if (allEmployees.length) {
         const whichEmployee = {
           type: "list",
-          message: "Which role would you like to remove?",
+          message: "Which employee would you like to remove?",
           name: "id",
           choices: generateEmployeeChoices(allEmployees),
         };
@@ -263,6 +273,7 @@ const init = async () => {
         const { id } = await inquirer.prompt(whichEmployee);
 
         db.queryParams(`DELETE FROM ?? WHERE ?? = ?`, ["employee", "id", id]);
+        console.log(`\n Successfully removed employee. \n`.removed);
       } else {
         console.log("\n There are no employees to remove. \n".custom);
       }
@@ -298,6 +309,7 @@ const init = async () => {
           "id",
           `${chosenEmployee.id}`,
         ]);
+        console.log(`\n Role successfully updated. \n`.success);
       } else {
         console.log(
           "\n There are currently no employees in the database. \n".custom
@@ -338,13 +350,14 @@ const init = async () => {
           "id",
           `${id}`,
         ]);
+        console.log(`\n Manager successfully updated. \n`.success);
       } else {
         console.log("\nPlease add additional employees first.\n".custom);
       }
     }
 
     if (option === "allRoles") {
-      const rolesAndDepartments = await db.params(allRolesQuery());
+      const rolesAndDepartments = await db.queryParams(allRolesQuery());
 
       if (rolesAndDepartments.length) {
         console.table(rolesAndDepartments);
@@ -394,6 +407,7 @@ const init = async () => {
           "role",
           { title, salary, department_id },
         ]);
+        console.log(`\n New role successfully added: ${title}. \n`.success);
       }
     }
 
@@ -420,6 +434,7 @@ const init = async () => {
 
         if (confirm) {
           db.queryParams(`DELETE FROM ?? WHERE ?? = ?`, ["role", "id", id]);
+          console.log(`\n Role successfully removed. \n`.removed);
         }
       } else {
         console.log("\n There are currently no roles to remove. \n".custom);
@@ -453,6 +468,7 @@ const init = async () => {
       const { name } = await inquirer.prompt(addDepartmentQuestion);
 
       await db.queryParams(`INSERT INTO ?? SET ?`, ["department", { name }]);
+      console.log(`\n New department successfully added: ${name} \n`.success);
     }
 
     if (option === "removeDepartment") {
@@ -482,6 +498,7 @@ const init = async () => {
             "id",
             id,
           ]);
+          console.log(`\n Department successfully removed. \n`.removed);
         }
       } else {
         console.log(
