@@ -18,7 +18,7 @@ const {
 const init = async () => {
   const db = new Db("workplace_db");
 
-  await db.start("\n  WELCOME TO YOUR EMPLOYEE TRACKER.  \n".custom);
+  await db.start("\n\n  WELCOME TO YOUR EMPLOYEE TRACKER.  \n\n".custom);
 
   let inProgress = true;
 
@@ -517,7 +517,7 @@ const init = async () => {
 
     if (option === "EXIT") {
       inProgress = false;
-      db.end("\n Thank you for using our app. \n".custom);
+      db.end("\n\n  Thank you for using our app.  \n\n".custom);
     }
   }
 };
