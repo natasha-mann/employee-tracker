@@ -1,11 +1,5 @@
 const inquirer = require("inquirer");
-const cTable = require("console.table");
 const colors = require("colors");
-colors.setTheme({
-  custom: ["bgCyan", "black"],
-  success: ["bgGreen", "black"],
-  removed: ["bgRed", "white"],
-});
 
 const Db = require("./db/database");
 const { generateEmployeeChoices, generateChoices } = require("./utils/utils");
@@ -16,6 +10,12 @@ const {
   allRolesQuery,
   departmentSpendQuery,
 } = require("./utils/queries");
+
+colors.setTheme({
+  custom: ["bgCyan", "black"],
+  success: ["bgGreen", "black"],
+  removed: ["bgRed", "white"],
+});
 
 const init = async () => {
   const db = new Db("workplace_db");
