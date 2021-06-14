@@ -4,12 +4,12 @@ const colors = require("colors");
 const Db = require("./lib/Db");
 const { generateEmployeeChoices, generateChoices } = require("./utils/utils");
 const {
-  allEmployeesQuery,
   byDepartmentQuery,
   byManagerQuery,
   allRolesQuery,
   departmentSpendQuery,
 } = require("./utils/queries");
+const Workplace = require("./lib/Workplace");
 
 colors.setTheme({
   custom: ["bgCyan", "black"],
@@ -21,6 +21,8 @@ const init = async () => {
   const db = new Db("workplace_db");
 
   await db.start("\n\n  WELCOME TO YOUR EMPLOYEE TRACKER.  \n\n".custom);
+
+  const workplace = new Workplace(db);
 
   let inProgress = true;
 
@@ -105,13 +107,7 @@ const init = async () => {
     const { option } = await inquirer.prompt(optionsQuestion);
 
     if (option === "viewAllEmployees") {
-      const employeeData = await db.query(allEmployeesQuery());
-
-      if (employeeData.length) {
-        console.table(employeeData);
-      } else {
-        console.log("\n There are currently no employees to view. \n".custom);
-      }
+      await workplace.viewAllEmployees();
     }
 
     if (option === "viewAllByDepartment") {
