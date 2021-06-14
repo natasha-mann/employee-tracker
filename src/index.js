@@ -1,7 +1,7 @@
 const inquirer = require("inquirer");
 const colors = require("colors");
 
-const Db = require("./db/database");
+const Db = require("./lib/Db");
 const { generateEmployeeChoices, generateChoices } = require("./utils/utils");
 const {
   allEmployeesQuery,
