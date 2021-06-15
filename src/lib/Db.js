@@ -1,6 +1,6 @@
 const mysql = require("mysql");
 
-class Db {
+class Database {
   constructor(database) {
     const dbOptions = {
       host: "localhost",
@@ -67,4 +67,4 @@ class Db {
   }
 }
 
-module.exports = Db;
+module.exports = Database;
